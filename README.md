@@ -1,92 +1,88 @@
 # NeuroVision AI
 
-NeuroVision AI is a production-ready, full-stack medical application for Explainable AI Decision Support in Brain MRI Analysis. It leverages an EfficientNet PyTorch model, custom Image Quality Assessment modules, and Grad-CAM visualizations.
+**Explainable decision support for brain MRI.** An EfficientNet-B0 model classifies the scan, an image-quality check says whether the input is good enough to trust, and Grad-CAM shows which region drove the prediction. Everything is delivered as a FastAPI + React web app that exports a PDF report.
 
-This repository contains two main parts:
-1. **Backend**: A FastAPI application running PyTorch inference.
-2. **Frontend**: A React/Vite web application using Tailwind CSS v4.
+![PyTorch](https://img.shields.io/badge/PyTorch-EE4C2C?style=flat-square&logo=pytorch&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=flat-square&logo=fastapi&logoColor=white)
+![React](https://img.shields.io/badge/React-20232A?style=flat-square&logo=react&logoColor=61DAFB)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS_v4-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white)
+![License: MIT](https://img.shields.io/badge/License-MIT-lightgrey?style=flat-square)
 
 ---
 
-## 🚀 Setup Instructions
+## Why it matters
 
-You need to run both the Backend and Frontend servers simultaneously. Please open **two separate terminal windows**.
+A prediction only helps a clinician if three questions are answered: how sure is the model, was the image good enough, and what part of the scan led to the answer? NeuroVision AI answers all three on one results screen.
 
-### 1️⃣ Backend Setup (FastAPI + PyTorch)
+## Features
 
-**Prerequisites:** Python 3.9+ installed.
+- **Tumour classification.** EfficientNet-B0 with ImageNet weights, fine-tuned on the [Brain Tumor MRI Dataset](https://www.kaggle.com/datasets/masoudnickparvar/brain-tumor-mri-dataset) for four classes: glioma, meningioma, pituitary and no tumour.
+- **Image quality assessment.** Scores each scan for sharpness, brightness, contrast and noise, combines them into an overall quality grade and flags blurry, dark or noisy inputs.
+- **Explainability.** Grad-CAM heatmaps overlaid on the MRI slice.
+- **Clinical-style workflow.** Patient ID, guided processing steps, a results dashboard and a one-click PDF report.
 
-Open your first terminal and navigate to the `backend` directory:
+## Results
+
+Held-out test set:
+
+| Accuracy | Precision | Recall | F1-score | ROC-AUC |
+|:---:|:---:|:---:|:---:|:---:|
+| 90.38 % | 91.26 % | 90.38 % | 90.13 % | 96.71 % |
+
+## How it works
+
+![NeuroVision AI pipeline](Flow_Chart.jpeg)
+
+## Repository
+
+| Path | What it is |
+|---|---|
+| `Copy_of_NeuroVision_AI_Training.ipynb` / `.py` | Data loading, EfficientNet-B0 fine-tuning and evaluation |
+| `NeuroVision_Image_Quality_Assessment.ipynb` / `.py` | Sharpness, brightness, contrast and noise scoring with a quality dashboard |
+| `best_model_finetuned.pth` | Trained model weights |
+| `neurovision_ai.zip` | The full-stack app: `backend/` (FastAPI) and `frontend/` (React + Vite) |
+| `Test_Images.zip` | Sample MRI slices to try the app |
+| `Flow_Chart.jpeg` | Pipeline diagram |
+
+## Run it locally
+
+Unzip `neurovision_ai.zip` first. You need two terminals: one for the backend, one for the frontend.
+
+**1. Backend (FastAPI + PyTorch).** Needs Python 3.9 or newer.
+
 ```bash
 cd neurovision_ai/backend
-```
-
-#### Step A: Create and Activate Virtual Environment
-
-**For Mac/Linux:**
-```bash
 python3 -m venv venv
-source venv/bin/activate
-```
-
-**For Windows (Command Prompt / PowerShell):**
-```bash
-python -m venv venv
-venv\Scripts\activate
-```
-
-*(Note: You should see `(venv)` at the beginning of your terminal prompt indicating the virtual environment is active).*
-
-#### Step B: Install Dependencies
-```bash
+source venv/bin/activate          # Windows: venv\Scripts\activate
 pip install -r requirements.txt
-```
-
-#### Step C: Start the Backend Server
-
-**For Mac/Linux:**
-```bash
-export PYTHONPATH=.
+export PYTHONPATH=.               # Windows: set PYTHONPATH=.
 uvicorn app.main:app --reload --port 8000
 ```
 
-**For Windows:**
-```bash
-set PYTHONPATH=.
-uvicorn app.main:app --reload --port 8000
-```
-*The backend is now running at `http://localhost:8000/docs` (Swagger UI for testing).*
+The API docs (Swagger UI) are then at http://localhost:8000/docs.
 
----
+**2. Frontend (React + Vite).** Needs Node.js 18 or newer.
 
-### 2️⃣ Frontend Setup (React + Vite)
-
-**Prerequisites:** Node.js (v18+) and npm installed.
-
-Open your **second terminal window** and navigate to the `frontend` directory:
 ```bash
 cd neurovision_ai/frontend
-```
-
-#### Step A: Install Dependencies (Mac & Windows)
-```bash
 npm install
-```
-
-#### Step B: Start the Frontend Server (Mac & Windows)
-```bash
 npm run dev
 ```
-*The frontend is now running! Look at your terminal for the Local URL (usually `http://localhost:5173/`).*
 
----
+Open the local URL Vite prints, usually http://localhost:5173/.
 
-## 🎯 How to Use the Application
+## Using the app
 
-1. Open a web browser and go to the frontend URL (`http://localhost:5173/`).
-2. Click **WELCOME** on the landing page.
-3. On the Upload Page, enter any dummy Patient ID (e.g., `PID-983472`).
-4. Upload a T1c or T2 Brain MRI slice (JPG or PNG) and submit.
-5. The Processing screen will guide you through the AI analysis stages.
-6. Once completed, explore the **Results Dashboard** for AI diagnostics, Image Quality scores, and Grad-CAM heatmaps.
-7. Click **Export PDF** to download the professional medical report!
+1. Click **Welcome** on the landing page.
+2. Enter any patient ID (for example `PID-983472`).
+3. Upload a T1c or T2 brain MRI slice (JPG or PNG) and submit.
+4. Follow the processing steps, then explore the results dashboard: diagnosis, image-quality scores and Grad-CAM heatmap.
+5. Click **Export PDF** to download the report.
+
+## Disclaimer
+
+This is a research and education project, not a medical device. It must not be used for clinical diagnosis.
+
+## License
+
+[MIT](LICENSE)
